@@ -2,4 +2,6 @@ flask
 pandas
 numpy
 scikit-learn
+flask-cors
+
 
