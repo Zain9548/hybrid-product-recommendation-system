@@ -1,3 +1,4 @@
+'''
 from surprise import Dataset, Reader, SVD
 from surprise.model_selection import train_test_split
 from surprise import accuracy
@@ -42,3 +43,4 @@ def get_cf_recommendations(username, model, df_cf, n=10):
 
     preds.sort(key=lambda x: x[1], reverse=True)
     return preds[:n]
+'''

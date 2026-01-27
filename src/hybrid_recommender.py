@@ -1,4 +1,4 @@
-from src.collaborative_filtering import get_cf_recommendations
+from src.cf_inference import get_cf_recommendations
 from src.content_based_filtering import get_similar_products
 
 
