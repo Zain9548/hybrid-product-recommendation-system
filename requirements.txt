@@ -2,4 +2,4 @@ flask
 pandas
 numpy
 scikit-learn
-scikit-surprise
+scikit-surprise==1.1.3
