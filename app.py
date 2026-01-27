@@ -1,13 +1,15 @@
 from flask import Flask, request, jsonify
 import pickle
-import pandas as pd
 
-# ===== Import your project modules =====
-from src.data_preprocessing import load_and_clean_data, prepare_cf_data, prepare_cb_data
-from src.content_based_filtering import build_tfidf_model
+# ===== Import project modules =====
+from src.data_preprocessing import (
+    load_and_clean_data,
+    prepare_cf_data,
+    prepare_cb_data
+)
 from src.hybrid_recommender import hybrid_recommendations
 
-# ===== Flask app =====
+# ===== Flask App =====
 app = Flask(__name__)
 
 # ===== Load Data =====
@@ -42,30 +44,34 @@ def home():
 # ===== Recommendation Route =====
 @app.route("/recommend", methods=["POST"])
 def recommend():
-    """
-    Input JSON:
-    {
-        "username": "john_doe",
-        "n": 10
-    }
-    """
-
     data = request.get_json()
 
     if not data or "username" not in data:
         return jsonify({"error": "username is required"}), 400
 
     username = data["username"]
-    n = data.get("n", 10)
+    n = int(data.get("n", 10))
 
-    # Check if user exists
+    # Cold-start fallback
     if username not in df_cf['reviews.username'].values:
-        return jsonify({
-            "error": "User not found",
-            "message": "Cold-start user. Add fallback logic."
-        }), 404
+        popular_items = (
+            df_cf['id']
+            .value_counts()
+            .head(n)
+            .index
+            .tolist()
+        )
 
-    # Get recommendations
+        return jsonify({
+            "username": username,
+            "cold_start": True,
+            "recommendations": [
+                {"product_id": pid, "score": None}
+                for pid in popular_items
+            ]
+        })
+
+    # Hybrid recommendations
     recommendations = hybrid_recommendations(
         username=username,
         model_cf=model_cf,
@@ -82,10 +88,11 @@ def recommend():
 
     return jsonify({
         "username": username,
+        "cold_start": False,
         "recommendations": response
     })
 
 
-# ===== Run App =====
+# ===== Run App (PRODUCTION SAFE) =====
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
