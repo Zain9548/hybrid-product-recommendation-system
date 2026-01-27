@@ -1,33 +1,27 @@
-from src.cf_inference import get_cf_recommendations
 from src.content_based_filtering import get_similar_products
-
 
 def hybrid_recommendations(
     username,
-    model_cf,
     df_cf,
     df_cb,
     similarity_matrix,
-    n=10,
-    cf_weight=0.6,
-    cbf_weight=0.4
+    n=10
 ):
-    """
-    Hybrid recommendation using CF + CBF
-    """
     final_scores = {}
 
-    # Collaborative Filtering part
-    try:
-        cf_recs = get_cf_recommendations(
-            username, model_cf, df_cf, n=20
-        )
-        for item, score in cf_recs:
-            final_scores[item] = final_scores.get(item, 0) + cf_weight * score
-    except:
-        pass
+    # Popularity-based (CF replacement)
+    popular_items = (
+        df_cf['id']
+        .value_counts()
+        .head(20)
+        .index
+        .tolist()
+    )
 
-    # Content-Based Filtering part
+    for item in popular_items:
+        final_scores[item] = final_scores.get(item, 0) + 1.0
+
+    # Content-Based part
     user_history = df_cf[df_cf['reviews.username'] == username]['id']
 
     if len(user_history) > 0:
@@ -37,6 +31,6 @@ def hybrid_recommendations(
         )
 
         for item in cb_items:
-            final_scores[item] = final_scores.get(item, 0) + cbf_weight
+            final_scores[item] = final_scores.get(item, 0) + 2.0
 
     return sorted(final_scores.items(), key=lambda x: x[1], reverse=True)[:n]

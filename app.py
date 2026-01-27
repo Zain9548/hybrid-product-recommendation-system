@@ -19,23 +19,21 @@ df = load_and_clean_data(DATA_PATH)
 df_cf = prepare_cf_data(df)
 df_cb = prepare_cb_data(df)
 
-# ===== Load Models =====
-with open("models/cf_model.pkl", "rb") as f:
-    model_cf = pickle.load(f)
-
+# ===== Load CBF Models (SAFE) =====
 with open("models/tfidf_vectorizer.pkl", "rb") as f:
     vectorizer = pickle.load(f)
 
 with open("models/similarity_matrix.pkl", "rb") as f:
     similarity_matrix = pickle.load(f)
 
-print("✅ Models and data loaded successfully")
+print("✅ Data and CBF models loaded successfully")
 
 # ===== Home Route =====
 @app.route("/")
 def home():
     return jsonify({
         "message": "Hybrid Product Recommendation API is running 🚀",
+        "model_type": "Popularity + Content-Based",
         "endpoints": {
             "/recommend": "POST → get recommendations"
         }
@@ -50,31 +48,11 @@ def recommend():
         return jsonify({"error": "username is required"}), 400
 
     username = data["username"]
-    n = int(data.get("n", 10))
+    n = int(data.get("n", 5))
 
-    # Cold-start fallback
-    if username not in df_cf['reviews.username'].values:
-        popular_items = (
-            df_cf['id']
-            .value_counts()
-            .head(n)
-            .index
-            .tolist()
-        )
-
-        return jsonify({
-            "username": username,
-            "cold_start": True,
-            "recommendations": [
-                {"product_id": pid, "score": None}
-                for pid in popular_items
-            ]
-        })
-
-    # Hybrid recommendations
+    # ===== Hybrid Recommendations =====
     recommendations = hybrid_recommendations(
         username=username,
-        model_cf=model_cf,
         df_cf=df_cf,
         df_cb=df_cb,
         similarity_matrix=similarity_matrix,
@@ -88,11 +66,10 @@ def recommend():
 
     return jsonify({
         "username": username,
-        "cold_start": False,
         "recommendations": response
     })
 
 
-# ===== Run App (PRODUCTION SAFE) =====
+# ===== Run App (RENDER SAFE) =====
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
