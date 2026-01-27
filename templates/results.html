@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Results</title>
+</head>
+<body>
+  <h3>Recommended Products</h3>
+  <ul>
+    {% for item, score in recs %}
+      <li>{{ item }} ({{ score | round(2) }})</li>
+    {% endfor %}
+  </ul>
+  <a href="/">Back</a>
+</body>
+</html>
