@@ -49,10 +49,58 @@ Server will start
 cpp
 http://127.0.0.1:5000/
 
+### 🌐 API Deployment
+
+The backend API is deployed on cloud (Render).
+
+Backend API Base URL:
+
+https://hybrid-product-recommendation-system-5.onrender.com/
+
+Available Endpoints:
+
+GET / → Health check
+POST /recommend → Get product recommendations
+
+
+---
+
+###🔍 Check The Backend API through POSTMAN
+
+
+##3 🔹  Check Backend API using GET Method (Postman)
+
+The following screenshot shows the successful testing of the backend API using the **GET method** in Postman.
+
+![Postman GET API Test](Screenshot%202026-01-28%20112221.png)
+
+
+## 🔹  Check Backend API using POST Method (Postman)
+
+The following screenshot shows the successful testing of the backend API using the **POST method** in Postman.
+
+![Postman POST API Test](Screenshot%202026-01-28%20112143.png)
+
+
+### 🧑‍💻 Technologies Used
+
+Python
+
+Pandas, NumPy
+
+Scikit-learn
+Surprise 
+Flask, Flask-CORS
+
+Render (Cloud Deployment)
 
 
 
-Deployement For API
+
+
+
+
+
 
 
 
